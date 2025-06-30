@@ -1,3 +1,69 @@
+#name: Web ui automation workflow
+#
+#on:
+#  push:
+#    branches: [ "main" ]
+#  pull_request:
+#    branches: [ "main" ]
+#  workflow_dispatch:
+#
+#    permissions:
+#      contents: read
+#      pages: write
+#      id-token: write
+#
+#jobs:
+#  run-automation-test:
+#    runs-on: ubuntu-latest
+#    steps:
+#    # download repo
+#    - uses: actions/checkout@v4
+#
+#    #setup java
+#    - name: Set up JDK 23
+#      uses: actions/setup-java@v4
+#      with:
+#        java-version: '23'
+#        distribution: 'temurin'
+#
+#        # install browser
+#    - name: Setup Chrome with extra capabilities
+#      uses: browser-actions/setup-chrome@v1.4.0
+#      with:
+#        chrome-version: latest # Ganti dengan 'stable' untuk versi stabil
+#        #chrome-options: '--headless' #(Jika ingin menjalankan Chrome dalam mode headless)
+#
+#      # setup gradlew
+#    - name: Setup gradlew
+#      run: chmod +x gradlew
+#
+#      # Execute gradle command for running cucumber test
+#    - name: Build with Gradle
+#      run:
+#           chmod +x gradlew  # Make gradlew executable
+#           ./gradlew build  # Run the build task before tests
+#
+#    - name: Run Tests
+#      run: ./gradlew clean test  # Run tests after the build step
+#
+#          # Archive Test Result
+#    - name: Archive Test Result
+#      uses: actions/upload-artifact@v4.6.2
+#      if: always()
+#      with:
+#        name: Cucumber Reports
+#        path: target/cucumber-reports.html
+#
+#    # Deploy to Github Pages
+#    - name: Deploy report to Github Pages
+#      if: always()
+#      uses: peaceiris/actions-gh-pages@v4.0.0
+#      with:
+#        PERSONAL_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        PUBLISH_DIR: reports
+#
+#
+
 name: Web ui automation workflow
 
 on:
@@ -7,59 +73,48 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
   run-automation-test:
     runs-on: ubuntu-latest
     steps:
-    # download repo
-    - uses: actions/checkout@v4
-    
-    #setup java
-    - name: Set up JDK 23
-      uses: actions/setup-java@v4
-      with:
-        java-version: '23'
-        distribution: 'temurin'
+      - uses: actions/checkout@v4
 
-        # install browser
-    - name: Setup Chrome with extra capabilities
-      uses: browser-actions/setup-chrome@v1.4.0
-      with:
-        chrome-version: latest # Ganti dengan 'stable' untuk versi stabil
-        #chrome-options: '--headless' #(Jika ingin menjalankan Chrome dalam mode headless)
+      - name: Set up JDK 23
+        uses: actions/setup-java@v4
+        with:
+          java-version: '23'
+          distribution: 'temurin'
 
-      # setup gradlew
-    - name: Setup gradlew
-      run: chmod +x gradlew 
+      - name: Setup Chrome with extra capabilities
+        uses: browser-actions/setup-chrome@v1.4.0
+        with:
+          chrome-version: latest
+          # chrome-options: '--headless'
 
-      # Execute gradle command for running cucumber test
-    - name: Build with Gradle
-      run:
-           chmod +x gradlew  # Make gradlew executable
-           ./gradlew build  # Run the build task before tests
+      - name: Make gradlew executable
+        run: chmod +x gradlew
 
-    - name: Run Tests
-      run: ./gradlew clean test  # Run tests after the build step
+      - name: Build with Gradle
+        run: ./gradlew build
 
-          # Archive Test Result
-    - name: Archive Test Result
-      uses: actions/upload-artifact@v4.6.2
-      if: always()
-      with:
-        name: Cucumber Reports
-        path: target/cucumber-reports.html
-      
-    # Deploy to Github Pages
-    - name: Deploy report to Github Pages
-      if: always()
-      uses: peaceiris/actions-gh-pages@v4.0.0
-      with:
-        PERSONAL_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        PUBLISH_DIR: reports
-     
-          
+      - name: Run Tests
+        run: ./gradlew clean test
+
+      - name: Archive Test Result
+        if: always()
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: Cucumber Reports
+          path: target/cucumber-reports.html
+
+      - name: Deploy report to Github Pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v4.0.0
+        with:
+          PERSONAL_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PUBLISH_DIR: reports
