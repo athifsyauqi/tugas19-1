@@ -36,6 +36,16 @@ dependencies {
 
 }
 
+task cucumber(type: JavaExec) {
+    mainClass.set("io.cucumber.core.cli.Main")
+    classpath = sourceSets.test.runtimeClasspath
+    args = [
+            '--plugin', 'pretty',
+            '--glue', 'stepDefinitions', // sesuaikan dengan package step definitions kamu
+            'src/test/resources/features'
+    ]
+}
+
 test {
     useJUnit()
 }
